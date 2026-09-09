@@ -1,0 +1,100 @@
+======================================================================
+FULL DATASET TRAINING RUN
+======================================================================
+Loading D:\VIT\Hackathon\Gdg 2026\VeReMi_Extension Dataset for Misbehaviors in VANETs\mixalldata_clean.csv ...
+Loaded 3,194,808 rows in 12.2s
+Columns: ['type', 'sendTime', 'sender', 'senderPseudo', 'messageID', 'class', 'posx', 'posy', 'posz', 'posx_n', 'posy_n', 'posz_n', 'spdx', 'spdy', 'spdz', 'spdx_n', 'spdy_n', 'spdz_n', 'aclx', 'acly', 'aclz', 'aclx_n', 'acly_n', 'aclz_n', 'hedx', 'hedy', 'hedz', 'hedx_n', 'hedy_n', 'hedz_n']
+
+Class distribution:
+class
+0     1900539
+1       43653
+2       43567
+3       43857
+4       42575
+5       41925
+6       44359
+7       42258
+8       42583
+9       42790
+10      43264
+11      44337
+12      43118
+13     131305
+14     126724
+15     129270
+16     175391
+17      44310
+18      86883
+19      82100
+
+Normal: 1,900,539 (59.5%)  |  Attack: 1,294,269 (40.5%)
+
+Engineering features...
+Computing trailing message-rate feature (this is the slowest step, be patient on 3.2M rows)...
+  done in 7.9s
+
+Splitting by vehicle (sender) — no vehicle appears in both train and test...
+Senders — train: 19,730, test: 4,933, overlap: 0
+
+Balanced training set: 2,064,934 rows (1,032,467 Normal + 1,032,467 Attack)
+
+Training RandomForestClassifier (500 trees)...
+Training took 1712.9s
+
+======================================================================
+RESULT — Balanced, vehicle-disjoint test set (compare this to the 96.03% from 188K rows)
+======================================================================
+              precision    recall  f1-score   support
+
+      Normal     0.8587    0.9981    0.9231    261802
+      Attack     0.9977    0.8357    0.9096    261802
+
+    accuracy                         0.9169    523604
+   macro avg     0.9282    0.9169    0.9163    523604
+weighted avg     0.9282    0.9169    0.9163    523604
+
+Accuracy: 0.9169
+
+Confusion matrix:
+                 Pred Normal   Pred Attack
+  Actual Normal      261297          505
+  Actual Attack       43008       218794
+
+Per-class detection rate on held-out vehicles:
+  class  0  n= 381339  correctly-classified= 99.8%
+  class  1  n=   9232  correctly-classified= 68.0%
+  class  2  n=   9990  correctly-classified= 39.5%
+  class  3  n=   8330  correctly-classified= 71.8%
+  class  4  n=   6936  correctly-classified= 10.0%
+  class  5  n=  10296  correctly-classified= 98.0%
+  class  6  n=   9327  correctly-classified= 92.8%
+  class  7  n=   5638  correctly-classified= 98.4%
+  class  8  n=   7504  correctly-classified= 84.7%
+  class  9  n=   8095  correctly-classified= 80.7%
+  class 10  n=   8450  correctly-classified= 36.8%
+  class 11  n=   7215  correctly-classified= 16.3%
+  class 12  n=   8303  correctly-classified= 61.4%
+  class 13  n=  29969  correctly-classified= 99.7%
+  class 14  n=  25131  correctly-classified=100.0%
+  class 15  n=  26099  correctly-classified= 99.9%
+  class 16  n=  37459  correctly-classified= 99.8%
+  class 17  n=   8797  correctly-classified= 21.1%
+  class 18  n=  15333  correctly-classified=100.0%
+  class 19  n=  19698  correctly-classified= 99.9%
+
+Top 10 feature importances:
+time_since_last_msg    0.243665
+msg_rate_1s            0.222430
+spd_mag_delta          0.071483
+msg_count_so_far       0.064471
+spd_mag                0.057626
+spdx                   0.036632
+spd_x_delta            0.031482
+posx                   0.028596
+acl_mag                0.028033
+pos_x_delta            0.027457
+
+Saved model_binary_v2_full.pkl and feature_cols_v2_full.pkl
+
+Total script time: 1752.6s

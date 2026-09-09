@@ -1,0 +1,148 @@
+======================================================================
+ENHANCED TRAINING — Sequence features + Multi-class + LightGBM
+======================================================================
+Loading D:\VIT\Hackathon\Gdg 2026\VeReMi_Extension Dataset for Misbehaviors in VANETs\mixalldata_clean.csv ...
+Loaded 3,194,808 rows in 5.7s
+Columns: ['type', 'sendTime', 'sender', 'senderPseudo', 'messageID', 'class', 'posx', 'posy', 'posz', 'posx_n', 'posy_n', 'posz_n', 'spdx', 'spdy', 'spdz', 'spdx_n', 'spdy_n', 'spdz_n', 'aclx', 'acly', 'aclz', 'aclx_n', 'acly_n', 'aclz_n', 'hedx', 'hedy', 'hedz', 'hedx_n', 'hedy_n', 'hedz_n']
+
+Class distribution:
+class
+0     1900539
+1       43653
+2       43567
+3       43857
+4       42575
+5       41925
+6       44359
+7       42258
+8       42583
+9       42790
+10      43264
+11      44337
+12      43118
+13     131305
+14     126724
+15     129270
+16     175391
+17      44310
+18      86883
+19      82100
+
+Engineering features...
+Computing trailing message-rate feature...
+  done in 2.7s
+Adding enriched delta features...
+Computing sequence features (rolling statistics)...
+  Total columns after sequence features: 141
+
+Total features: 117
+  Base: 43
+  Enriched: 11
+  Sequence: 63
+
+Splitting by vehicle (sender)...
+Senders — train: 19,730, test: 4,933, overlap: 0
+
+Balancing training data per subtype...
+Attack subtypes range: 31,629 to 137,932, capping at 31,629
+Balanced training: 1,201,902 rows (600,951 Normal + 600,951 Attack)
+
+Training Binary LightGBM...
+Binary training took 119.1s
+
+Training Multi-class LightGBM...
+Multi-class training took 1274.0s
+
+Evaluating on balanced, vehicle-disjoint test set...
+  Normal test pool: 381,339, Attack test pool: 261,802, balanced n: 261,802
+  Balanced test set: 523,604 rows (Normal: 261,802, Attack: 261,802)
+
+Applying hybrid prediction (binary + multi-class refinement)...
+
+Per-subtype threshold optimization...
+  Validation set: 261,802 (Normal: 131,071, Attack: 130,731)
+  Test eval set: 261,802 (Normal: 130,731, Attack: 131,071)
+  Class 17 (DoS Disruptive Sybil): optimal threshold = 0.10, F1 = 0.991
+  Class 2 (Const Pos Offset): optimal threshold = 0.10, F1 = 0.953
+  Class 4 (Random Pos Offset): optimal threshold = 0.10, F1 = 1.000
+  Class 10 (Data Replay): optimal threshold = 0.10, F1 = 0.996
+  Class 11 (DoS): optimal threshold = 0.10, F1 = 0.996
+
+======================================================================
+FINAL RESULTS — Hybrid + Per-Class Thresholds
+======================================================================
+              precision    recall  f1-score   support
+
+      Normal     0.9790    0.9987    0.9887    130731
+      Attack     0.9987    0.9786    0.9885    131071
+
+    accuracy                         0.9886    261802
+   macro avg     0.9888    0.9886    0.9886    261802
+weighted avg     0.9888    0.9886    0.9886    261802
+
+Accuracy: 0.9886
+
+Confusion matrix:
+                 Pred Normal   Pred Attack
+  Actual Normal      130558          173
+  Actual Attack        2806       128265
+
+Per-class detection rate on held-out vehicles:
+  class  0 (Normal                    ) n=381339  correctly-classified= 99.9%
+  class  1 (Const Position            ) n= 9232  correctly-classified= 98.7%
+  class  2 (Const Pos Offset          ) n= 9990  correctly-classified= 90.7%
+  class  3 (Random Position           ) n= 8330  correctly-classified= 99.9%
+  class  4 (Random Pos Offset         ) n= 6936  correctly-classified=100.0%
+  class  5 (Const Speed               ) n=10296  correctly-classified=100.0%
+  class  6 (Const Speed Offset        ) n= 9327  correctly-classified= 99.2%
+  class  7 (Random Speed              ) n= 5638  correctly-classified=100.0%
+  class  8 (Random Speed Offset       ) n= 7504  correctly-classified=100.0%
+  class  9 (Disruptive                ) n= 8095  correctly-classified= 80.6%
+  class 10 (Data Replay               ) n= 8450  correctly-classified= 99.1%
+  class 11 (DoS                       ) n= 7215  correctly-classified= 99.3%
+  class 12 (DoS Random                ) n= 8303  correctly-classified= 81.3%
+  class 13 (DoS Disruptive            ) n=29969  correctly-classified= 99.7%
+  class 14 (Data Replay Sybil         ) n=25131  correctly-classified=100.0%
+  class 15 (Traffic Congestion Sybil  ) n=26099  correctly-classified= 99.9%
+  class 16 (DoS Random Sybil          ) n=37459  correctly-classified= 99.8%
+  class 17 (DoS Disruptive Sybil      ) n= 8797  correctly-classified= 98.3%
+  class 18 (Class18                   ) n=15333  correctly-classified=100.0%
+  class 19 (Class19                   ) n=19698  correctly-classified= 99.9%
+
+Top 15 Binary feature importances:
+msg_count_so_far             10145
+spd_mag_n                     6396
+spd_delta_mag_roll_max_10     6133
+spd_mag_delta_roll_max_10     5430
+hed_delta_mag_roll_max_10     5206
+pos_y_delta_roll_min_10       5135
+hed_delta_mag_roll_min_10     4785
+pos_x_delta_roll_max_10       4665
+pos_y_delta_roll_max_10       4539
+pos_x_delta_roll_min_10       4514
+pos_delta_mag_roll_min_10     3977
+pos_delta_mag_roll_max_10     3952
+spdx_n                        3897
+posy_n                        3866
+hedy                          3846
+
+Top 15 Multi-class feature importances:
+msg_count_so_far             37348
+hed_delta_mag_roll_min_10    34796
+posy_n                       34793
+posx_n                       33985
+acl_delta_mag_roll_max_10    32043
+hed_delta_mag_roll_max_10    31247
+pos_y_delta_roll_max_10      28855
+pos_x_delta_roll_max_10      28835
+pos_x_delta_roll_min_10      28789
+pos_y_delta_roll_min_10      28642
+spd_delta_mag_roll_max_10    27179
+acl_delta_mag_roll_min_10    26976
+pos_delta_mag_roll_max_10    26428
+spd_mag_n                    26411
+pos_delta_mag_roll_min_10    25475
+
+Saved models and artifacts
+
+Total script time: 2475.4s

@@ -1,0 +1,101 @@
+======================================================================
+FULL DATASET TRAINING RUN — v2 (per-attack-subtype balanced)
+======================================================================
+Loading D:\VIT\Hackathon\Gdg 2026\VeReMi_Extension Dataset for Misbehaviors in VANETs\mixalldata_clean.csv ...
+Loaded 3,194,808 rows in 6.0s
+
+Class distribution:
+class
+0     1900539
+1       43653
+2       43567
+3       43857
+4       42575
+5       41925
+6       44359
+7       42258
+8       42583
+9       42790
+10      43264
+11      44337
+12      43118
+13     131305
+14     126724
+15     129270
+16     175391
+17      44310
+18      86883
+19      82100
+
+Engineering features...
+Computing trailing message-rate feature...
+  done in 2.9s
+
+Splitting by vehicle (sender)...
+Senders — train: 19,730, test: 4,933, overlap: 0
+
+Attack subtypes in training pool range from 31,629 to 137,932 rows.
+Capping every attack subtype at 31,629 rows so no subtype dominates training.
+Subtype-balanced attack training pool: 600,951 rows (19 subtypes x 31,629 each)
+
+Final balanced training set: 1,201,902 rows (600,951 Normal + 600,951 Attack)
+
+Training RandomForestClassifier (500 trees, verbose progress)...
+Training took 541.5s
+
+======================================================================
+RESULT — Balanced, vehicle-disjoint test set
+======================================================================
+              precision    recall  f1-score   support
+
+      Normal     0.8688    0.9948    0.9275    261802
+      Attack     0.9939    0.8498    0.9162    261802
+
+    accuracy                         0.9223    523604
+   macro avg     0.9314    0.9223    0.9219    523604
+weighted avg     0.9314    0.9223    0.9219    523604
+
+Accuracy: 0.9223
+
+Confusion matrix:
+                 Pred Normal   Pred Attack
+  Actual Normal      260443         1359
+  Actual Attack       39333       222469
+
+Per-class detection rate on held-out vehicles:
+  class  0  n= 381339  correctly-classified= 99.5%
+  class  1  n=   9232  correctly-classified= 75.2%
+  class  2  n=   9990  correctly-classified= 46.3%
+  class  3  n=   8330  correctly-classified= 78.4%
+  class  4  n=   6936  correctly-classified= 12.7%
+  class  5  n=  10296  correctly-classified= 99.0%
+  class  6  n=   9327  correctly-classified= 95.9%
+  class  7  n=   5638  correctly-classified= 98.8%
+  class  8  n=   7504  correctly-classified= 91.2%
+  class  9  n=   8095  correctly-classified= 80.8%
+  class 10  n=   8450  correctly-classified= 39.2%
+  class 11  n=   7215  correctly-classified= 18.3%
+  class 12  n=   8303  correctly-classified= 63.6%
+  class 13  n=  29969  correctly-classified= 99.7%
+  class 14  n=  25131  correctly-classified=100.0%
+  class 15  n=  26099  correctly-classified= 99.9%
+  class 16  n=  37459  correctly-classified= 99.8%
+  class 17  n=   8797  correctly-classified= 22.9%
+  class 18  n=  15333  correctly-classified=100.0%
+  class 19  n=  19698  correctly-classified= 99.8%
+
+Top 10 feature importances:
+time_since_last_msg    0.142738
+msg_rate_1s            0.124493
+spd_mag_delta          0.087740
+spd_mag                0.078713
+spdx                   0.049331
+posx                   0.048475
+msg_count_so_far       0.048325
+pos_x_delta            0.044715
+spd_x_delta            0.043495
+acl_mag                0.041109
+
+Saved model_binary_v3_full.pkl and feature_cols_v3_full.pkl
+
+Total script time: 561.3s

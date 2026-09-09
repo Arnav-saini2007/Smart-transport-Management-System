@@ -1,0 +1,20 @@
+# Ignore Python cache and bytecode
+__pycache__/
+*.pyc
+
+# Ignore temporary/log files
+*.log
+alerts_log.jsonl
+
+# Ignore large datasets (if demo_multimessage.csv is large)
+demo_multimessage.csv
+data.csv
+
+model_multiclass_enhanced.pkl
+model_binary_enhanced.pkl
+model_binary_v3_full.pkl
+model_binary_v2_full.pkl
+model_binary_v2.pkl
+
+# Ignore environment/secret files
+.env
