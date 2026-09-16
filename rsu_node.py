@@ -5,6 +5,10 @@ import time
 import os
 import warnings
 warnings.filterwarnings("ignore")
+
+from driving.kinematic_features import update_kinematics, get_rolling_features, compute_ttc
+from driving.crash_rules import evaluate as evaluate_driving
+
 LOG_FILE = "alerts_log.jsonl"
 if os.path.exists(LOG_FILE):
     os.remove(LOG_FILE)
@@ -51,22 +55,50 @@ for idx, row in df.iterrows():
     if 'sender' not in payload:
         payload['sender'] = int(row.get('type', row.get('vehicle_id', idx)))
 
+    # ── Driving / crash-physics layer ──
+    # Runs locally (no HTTP round-trip needed — this is cheap enough to run
+    # inline, which also matters for phase 3 since the OBU won't always
+    # have spare network bandwidth). Uses the _n (noisy/received) fields,
+    # since that's what a real receiver actually observes. If your security
+    # model instead trains on ground-truth fields, drop the "_n" suffix
+    # below and set USE_NOISY_FIELDS = False in kinematic_features.py.
+    kin_msg = {
+        "sender": payload['sender'],
+        "timestamp": payload['sendTime'],
+        "posx": payload['posx_n'], "posy": payload['posy_n'],
+        "spdx": payload['spdx_n'], "spdy": payload['spdy_n'],
+        "aclx": payload['aclx_n'], "acly": payload['acly_n'],
+        "hedx": payload['hedx_n'], "hedy": payload['hedy_n'],
+    }
+    update_kinematics(kin_msg)
+    driving_event = evaluate_driving(
+        payload['sender'],
+        get_rolling_features(payload['sender']),
+        compute_ttc(payload['sender']),
+    )
+    if driving_event:
+        print(f"🚨 [DRIVING ALERT] {driving_event.event_type} on Vehicle {payload['sender']} "
+              f"| {driving_event.reason}")
+        with open(LOG_FILE, 'a') as f:
+            f.write(json.dumps(driving_event.to_alert_dict()) + '\n')
+
     try:
         # Send telemetry frame to your running model_service.py API
         response = requests.post(API_URL, json=payload, timeout=30)
-        
+
         if response.status_code == 200:
             result = response.json()
             pred = result.get('prediction', 0)
             conf = result.get('confidence', 0.0)
             veh_id = result.get('vehicle_id', payload['sender'])
-            
+
             if pred == 1:
                 print(f"⚠️  [RSU ALERT] Threat detected on Vehicle {veh_id} | Confidence: {conf:.0%} | Gemma: {result.get('explanation')[:60]}...")
             else:
                 print(f"✅ [RSU OK] Frame processed for Vehicle {veh_id}")
 
             # Append structured result to shared stream log for Streamlit
+            result['category'] = result.get('category', 'security')
             with open(LOG_FILE, 'a') as f:
                 f.write(json.dumps(result) + '\n')
 
