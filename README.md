@@ -135,7 +135,3 @@ See `requirements.txt` for pinned versions. Core dependencies not listed there b
 - `fpdf2` — PDF report export (used by the export utilities)
 
 ---
-
-## License
-
-Add your license of choice here.
