@@ -15,6 +15,12 @@ model_binary_enhanced.pkl
 model_binary_v3_full.pkl
 model_binary_v2_full.pkl
 model_binary_v2.pkl
+feature_cols_enhanced.pkl
+optimal_thresholds.pkl
+feature_cols_v3_full.pkl
+feature_cols_v2_full.pkl
+feature_cols_v2.pkl
+
 
 # Ignore environment/secret files
 .env
