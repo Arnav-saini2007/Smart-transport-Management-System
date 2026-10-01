@@ -1,0 +1,100 @@
+vehicle_id,speed,status,confidence,explanation,attack_type,risk_level,timestamp
+V3303.0,1.8887597660106142e-09,Normal,98.70716803312956,,,Low,2026-09-23 11:58:56
+V9051.0,38.04548213046974,Normal,91.21218028596391,,,Low,2026-09-23 11:58:56
+V11667.0,129.41733368653232,Normal,98.01298526768552,,,Low,2026-09-23 11:58:56
+V14733.0,1706.8038853730889,Attack,100.0,"Operator, Vehicle 14733’s message is flagged as suspicious because its reported speed significantly deviates from the estimated speed, and this is the first message received from this vehicle. We are monitoring this sender for potential disruptions or inaccurate broadcasts.",GPS Spoofing,High,2026-09-23 11:58:56
+V16989.0,213.8506574116874,Normal,99.02290303606586,,,Low,2026-09-23 11:58:56
+V17691.0,675.6652064211795,Attack,99.03333333333335,"Operator, Vehicle 17691’s message is flagged as potentially anomalous due to a significant discrepancy between the reported speed and sensor estimates. This is the first message received from this vehicle, so we need to investigate further to ensure its reliability.",GPS Spoofing,High,2026-09-23 11:58:56
+V21639.0,1.336217948414393e-11,Normal,99.04001384990029,,,Low,2026-09-23 11:58:56
+V27045.0,181.59200799929783,Normal,97.49603077154046,,,Low,2026-09-23 11:58:56
+V27009.0,189.66646253317575,Normal,94.87472967929997,,,Low,2026-09-23 11:58:56
+V29319.0,180.86962133681703,Normal,98.70449223718315,,,Low,2026-09-23 11:58:56
+V33165.0,168.27435656091882,Normal,97.74918534389361,,,Low,2026-09-23 11:58:56
+V35307.0,91.87034193421096,Normal,97.55921054546162,,,Low,2026-09-23 11:58:56
+V35571.0,81.30260678464268,Normal,61.72949286048507,,,Low,2026-09-23 11:58:56
+V36195.0,2358.007781129657,Attack,99.56666666666666,"Vehicle 36195’s message appears suspicious because its reported speed significantly deviates from the estimated speed, and this is the first message received from this sender. We should investigate this unusual broadcast pattern.",GPS Spoofing,High,2026-09-23 11:58:56
+V37461.0,8.973109166976734,Normal,88.95679865476883,,,Low,2026-09-23 11:58:56
+V37611.0,828.9288204868599,Attack,98.58333333333331,"Operator, vehicle 37611’s message is flagged as potentially anomalous due to a significant discrepancy between its reported speed and the estimated speed. This is the first message received from this vehicle, so we’re investigating whether it’s a normal start-up or a possible issue with the broadcast.",GPS Spoofing,High,2026-09-23 11:58:56
+V38253.0,106.90425486765949,Normal,81.03402411853192,,,Low,2026-09-23 11:58:56
+V40335.0,172.34928915968783,Normal,96.09431375792987,,,Low,2026-09-23 11:58:56
+V40857.0,165.39748891339696,Normal,98.625557522547,,,Low,2026-09-23 11:58:56
+V44787.0,102.43020452184211,Normal,98.16011304545565,,,Low,2026-09-23 11:58:56
+V44991.0,4.4796338326692045e-10,Normal,94.79726656404033,,,Low,2026-09-23 11:58:56
+V46275.0,143.08002390000266,Normal,96.38028288127107,,,Low,2026-09-23 11:58:56
+V46131.0,95.28705134400572,Normal,95.50131873656468,,,Low,2026-09-23 11:58:56
+V46887.0,123.17814634584276,Normal,97.98793131484341,,,Low,2026-09-23 11:58:56
+V48471.0,6.347431019558978e-07,Normal,99.48488209283258,,,Low,2026-09-23 11:58:56
+V50253.0,313.03719562221966,Attack,89.24584309133488,"Operator, vehicle 50253’s message appears suspicious due to a significant discrepancy between its reported speed and sensor estimates. This is the first message received from this vehicle, so we’re monitoring for unusual message frequency.",GPS Spoofing,High,2026-09-23 11:58:56
+V50625.0,149.86162735852218,Normal,98.99242289596266,,,Low,2026-09-23 11:58:56
+V51243.0,208.60527041475243,Normal,97.09679570763402,,,Low,2026-09-23 11:58:56
+V51771.0,612.30656583874,Attack,99.36666666666666,"Vehicle 51771’s message is flagged as potentially anomalous because its reported speed is significantly different from the estimated speed, and this is the first message received from this vehicle. We should investigate this sender to ensure the data is reliable.",GPS Spoofing,High,2026-09-23 11:58:56
+V54279.0,225.85784463555723,Normal,98.22454454783464,,,Low,2026-09-23 11:58:56
+V56331.0,1376.3240094581267,Attack,99.22000000000001,"Operator, Vehicle 56331’s message is flagged as potentially anomalous because its reported speed significantly deviates from its estimated speed. This is the first message received from this vehicle, so we’re monitoring for a potential pattern of unusual data transmission.",GPS Spoofing,High,2026-09-23 11:58:56
+V57471.0,699.0081021164156,Attack,97.19333333333334,"Vehicle 57471’s message appears suspicious because it’s the first message received from this sender, and the reported speed is significantly different from the estimated speed. We’re monitoring this sender closely to ensure it's not part of a disruptive pattern.",GPS Spoofing,High,2026-09-23 11:58:56
+V58551.0,0.0,Attack,95.52360841423949,"Vehicle 58551 sent a single, anomalous message with no speed or movement data – this is highly unusual and warrants investigation. The system flagged this message due to a content mismatch, suggesting a potential issue with the vehicle's sensor data.",GPS Spoofing,High,2026-09-23 11:58:56
+V59739.0,97.8152906052934,Normal,99.13297387927386,,,Low,2026-09-23 11:58:56
+V59631.0,0.34259890284389455,Normal,82.5102914302233,,,Low,2026-09-23 11:58:56
+V62235.0,194.06500281742473,Normal,96.55129952356059,,,Low,2026-09-23 11:58:56
+V62823.0,20.919418594613354,Normal,97.63547439128219,,,Low,2026-09-23 11:58:56
+V63237.0,252.06045489785322,Normal,97.23471316506397,,,Low,2026-09-23 11:58:56
+V63495.0,9.608431596738717,Normal,58.023246859877844,,,Low,2026-09-23 11:58:56
+V63441.0,123.25229551224274,Normal,97.6521502141664,,,Low,2026-09-23 11:58:56
+V64443.0,117.82911350760587,Normal,96.27763595047814,,,Low,2026-09-23 11:58:56
+V64815.0,376.9309714292913,Attack,98.66666666666666,"Operator, vehicle 64815’s message is flagged as potentially suspicious because its reported speed significantly deviates from the estimated speed, and this is the first message received from this vehicle. We’re monitoring this sender to ensure consistent and reliable data transmission.",GPS Spoofing,High,2026-09-23 11:58:56
+V66093.0,3.1236356249797046,Normal,90.95357165306777,,,Low,2026-09-23 11:58:56
+V66591.0,22.794451619723034,Attack,58.83305247765437,"Vehicle 66591’s message is flagged as potentially anomalous due to a content mismatch in its position data. This is the first message received from this vehicle, so we’re monitoring for any unusual patterns in its information.",GPS Spoofing,High,2026-09-23 11:58:56
+V68787.0,234.02208341705534,Normal,97.84300754662961,,,Low,2026-09-23 11:58:56
+V69897.0,190.09517894089524,Normal,99.52623113667771,,,Low,2026-09-23 11:58:56
+V73827.0,168.73923028424701,Normal,98.5098524283654,,,Low,2026-09-23 11:58:56
+V78609.0,137.2900376847002,Normal,97.80589384781692,,,Low,2026-09-23 11:58:56
+V79335.0,197.6919694994886,Normal,98.5270373055484,,,Low,2026-09-23 11:58:56
+V81945.0,5.81803863383769e-10,Normal,99.03268517954243,,,Low,2026-09-23 11:58:56
+V84261.0,249.114706545826,Normal,98.40539341518377,,,Low,2026-09-23 11:58:56
+V84333.0,2.042760874100598,Attack,66.06735696632606,"Vehicle 84333’s initial message appears suspicious due to a content mismatch in its position data. We’re monitoring this sender closely as it’s the first message received, and this anomaly requires immediate investigation.",GPS Spoofing,High,2026-09-23 11:58:56
+V85353.0,1.4825124288990335,Normal,86.06118539795871,,,Low,2026-09-23 11:58:56
+V86451.0,292.72088202114134,Normal,84.42159415763302,,,Low,2026-09-23 11:58:56
+V86643.0,9.255108397997813e-12,Normal,98.09451695175349,,,Low,2026-09-23 11:58:56
+V87753.0,0.06964771812746157,Normal,73.62779720075393,,,Low,2026-09-23 11:58:56
+V88557.0,5.581987681615364e-07,Normal,98.0370538050731,,,Low,2026-09-23 11:58:56
+V88641.0,180.60326234401168,Normal,97.67317745532934,,,Low,2026-09-23 11:58:56
+V91911.0,877.5930044737693,Attack,98.26666666666667,"Operator, vehicle 91911’s message appears suspicious due to a significant discrepancy between its reported speed and magnitude, potentially indicating a broadcast issue. This is the first message received from this vehicle, so we are monitoring it closely for unusual patterns.",GPS Spoofing,High,2026-09-23 11:58:56
+V92481.0,176.44881795025316,Normal,98.80421116132425,,,Low,2026-09-23 11:58:56
+V93381.0,4.410191948511521e-06,Normal,98.99749696941159,,,Low,2026-09-23 11:58:56
+V95577.0,199.19262882603473,Normal,99.29236594351393,,,Low,2026-09-23 11:58:56
+V95505.0,1.340861077792965e-08,Normal,99.21142654395234,,,Low,2026-09-23 11:58:56
+V95775.0,220.21029853823467,Normal,58.5505599620146,,,Low,2026-09-23 11:58:56
+V96705.0,180.14383467611134,Normal,96.70961309684662,,,Low,2026-09-23 11:58:56
+V97233.0,177.43038285639557,Normal,82.84541618514106,,,Low,2026-09-23 11:58:56
+V98751.0,180.7186083360054,Normal,55.965786003341634,,,Low,2026-09-23 11:58:56
+V101433.0,5.03378791295355e-12,Normal,81.03628008367517,,,Low,2026-09-23 11:58:56
+V102555.0,1261.779077242858,Attack,99.13,"Operator, vehicle 102555’s message is flagged as potentially anomalous because its reported speed doesn't align with the vehicle’s motion, and this is the first message received from this sender. We’re monitoring this sender for unusual broadcast patterns.",GPS Spoofing,High,2026-09-23 11:58:56
+V102813.0,164.29168460105592,Normal,99.30855368977582,,,Low,2026-09-23 11:58:56
+V103479.0,29.248458761611232,Normal,79.3177402594673,,,Low,2026-09-23 11:58:56
+V104751.0,331.27569391962703,Attack,63.50439645692926,"Operator, vehicle 104751’s message appears suspicious due to a significant difference between its reported speed and its magnitude, potentially indicating an inaccurate broadcast. This is the first message received from this sender, so further monitoring is needed to assess its validity.",GPS Spoofing,High,2026-09-23 11:58:56
+V105495.0,119.96592411315575,Normal,50.828788761652675,,,Low,2026-09-23 11:58:56
+V109479.0,9.024724229783362e-08,Normal,98.50226562492583,,,Low,2026-09-23 11:58:56
+V109083.0,1.675636596492052e-05,Normal,99.19471994158562,,,Low,2026-09-23 11:58:56
+V110055.0,886.2734820281311,Attack,99.9,"Vehicle 110055.0’s message appears suspicious because its reported speed significantly deviates from the estimated speed, and this is the first message received from this vehicle. We are monitoring this sender for potential issues with the broadcast data.",GPS Spoofing,High,2026-09-23 11:58:56
+V111087.0,283.9038984962319,Normal,98.84233290106002,,,Low,2026-09-23 11:58:56
+V111363.0,182.26797484095857,Normal,94.39808613084637,,,Low,2026-09-23 11:58:56
+V111495.0,24.62380018576221,Normal,81.13963774472643,,,Low,2026-09-23 11:58:56
+V111675.0,1478.4907683179417,Attack,97.41666666666666,"Operator, Vehicle 111675’s message appears suspicious because it’s the first message received from this sender, and the reported speed significantly deviates from the estimated speed. We are monitoring this sender for potential unusual broadcast patterns.",GPS Spoofing,High,2026-09-23 11:58:56
+V113301.0,99.4362045037453,Normal,92.63412017497326,,,Low,2026-09-23 11:58:56
+V113775.0,258.5515994816534,Normal,88.93494986982944,,,Low,2026-09-23 11:58:56
+V114909.0,8.262632337774966e-08,Normal,99.26960743005931,,,Low,2026-09-23 11:58:56
+V117015.0,0.0023520942881406614,Normal,85.53944601488297,,,Low,2026-09-23 11:58:56
+V117123.0,184.46831905055694,Normal,99.54354671911389,,,Low,2026-09-23 11:58:56
+V118041.0,1.9098043779399474e-07,Normal,97.665949135307,,,Low,2026-09-23 11:58:56
+V118497.0,1.2317946983357622e-06,Normal,99.54905866885366,,,Low,2026-09-23 11:58:56
+V121449.0,174.5047138830208,Normal,99.08674187149418,,,Low,2026-09-23 11:58:56
+V126453.0,243.3873930285476,Normal,98.82303324648787,,,Low,2026-09-23 11:58:56
+V127875.0,46.54958498750634,Normal,91.55258596029498,,,Low,2026-09-23 11:58:56
+V130539.0,0.1946169099260884,Normal,95.6414044785512,,,Low,2026-09-23 11:58:56
+V130671.0,559.4890047446895,Attack,99.23333333333333,"Operator, vehicle 130671’s message appears suspicious because its reported speed significantly deviates from the estimated speed, and this is the first message received from this vehicle. We are monitoring this sender for potential unusual broadcast patterns.",GPS Spoofing,High,2026-09-23 11:58:56
+V130851.0,856.9351498691308,Attack,99.3,"Operator, vehicle 130851’s message is flagged as potentially anomalous due to a significant discrepancy between its reported speed and its magnitude. This is the first message received from this vehicle, so we are monitoring its activity closely for unusual patterns.",GPS Spoofing,High,2026-09-23 11:58:56
+V132573.0,459.469375329897,Attack,99.53333333333335,"Operator, Vehicle 132573’s message is flagged as potentially anomalous due to a significant discrepancy between its reported speed and estimated speed. This is the first message from this vehicle, so we are observing unusual behavior at this time.",GPS Spoofing,High,2026-09-23 11:58:56
+V132453.0,110.40357693042961,Normal,71.42182608641053,,,Low,2026-09-23 11:58:56
+V132867.0,2.812408767939285e-08,Normal,99.08201222340199,,,Low,2026-09-23 11:58:56
+V137013.0,4.092943920472811,Normal,75.19431090796202,,,Low,2026-09-23 11:58:56
+V140037.0,25.94231273870771,Normal,96.99308022810065,,,Low,2026-09-23 11:58:56
+V140445.0,147.1163114877961,Normal,97.67462284532034,,,Low,2026-09-23 11:58:56

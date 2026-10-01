@@ -1,13 +1,27 @@
 """
-fix_threshold_leak.py — Reuses your already-trained models (no retraining needed),
-but fixes the threshold-tuning leak by splitting val/test by VEHICLE, not by row.
+fix_threshold_leak_v2.py — Same as fix_threshold_leak.py (reuses your already-trained
+models, vehicle-disjoint val/eval split), but ALSO fixes a second bug found in the
+per-class threshold search: the F1 score used to pick each threshold was computed
+against a validation slice that contained ONLY rows from that one attack class
+(y_true = all 1s). Since there was no possible false positive in that slice,
+precision was mathematically forced to 1.0 every time, so "F1" collapsed to a
+function of recall alone — the search always walked to whichever threshold was
+lowest in the grid (0.10 with a 0.05-step grid, 0.01 with a 0.01-step grid),
+regardless of what that grid's floor was. That is a search artifact, not a real
+optimum.
+
+THE FIX: for each hard class, the validation slice used to score a candidate
+threshold now mixes that class's attack rows with an equal-sized sample of REAL
+Normal rows from the same vehicle-disjoint validation half. Precision can now
+actually be penalized when the model would flag ordinary traffic, so the F1
+curve has a genuine interior maximum instead of a monotonic wall.
 
 Run this in the same folder as your saved .pkl files and the dataset.
 """
 import pandas as pd
 import numpy as np
 from sklearn.model_selection import GroupShuffleSplit
-from sklearn.metrics import classification_report, accuracy_score, confusion_matrix, f1_score
+from sklearn.metrics import classification_report, accuracy_score, confusion_matrix, f1_score, precision_score, recall_score
 import joblib
 import warnings, time
 
@@ -23,6 +37,10 @@ ATTACK_NAMES = {
     16: 'DoS Random Sybil', 17: 'DoS Disruptive Sybil', 18: 'Class18', 19: 'Class19'
 }
 HARD_CLASSES = {2, 4, 10, 11, 17}
+
+# Widened + finer grid. With the bug fixed this no longer just walks to the floor,
+# so it's safe (and worthwhile) to search much more finely than the original 0.05 step.
+THRESHOLD_GRID = np.arange(0.01, 0.96, 0.01)
 
 t0 = time.time()
 print("Loading data + rebuilding features (same as before — this is the slow part)...")
@@ -123,18 +141,18 @@ gss = GroupShuffleSplit(n_splits=1, test_size=0.2, random_state=RANDOM_STATE)
 train_idx, test_idx = next(gss.split(df, groups=df['sender']))
 test_df = df.iloc[test_idx].copy()
 
-# ── FIX: split test vehicles into two DISJOINT groups — one for threshold
-#         tuning, one for final evaluation. No vehicle appears in both. ──
+# ── Split test vehicles into two DISJOINT groups — one for threshold tuning, one for
+#    final evaluation. No vehicle appears in both. (unchanged from fix_threshold_leak.py) ──
 gss2 = GroupShuffleSplit(n_splits=1, test_size=0.5, random_state=RANDOM_STATE)
 val_idx, eval_idx = next(gss2.split(test_df, groups=test_df['sender']))
-val_df = test_df.iloc[val_idx]
-eval_df = test_df.iloc[eval_idx]
+val_df = test_df.iloc[val_idx].copy()
+eval_df = test_df.iloc[eval_idx].copy()
 overlap = len(set(val_df['sender']) & set(eval_df['sender']))
 print(f"Threshold-val vehicles: {val_df['sender'].nunique():,}, "
       f"final-eval vehicles: {eval_df['sender'].nunique():,}, overlap: {overlap}")
 assert overlap == 0, "Still leaking!"
 
-# balance both halves for fair evaluation
+# balance both halves for fair evaluation (unchanged — this is for the OVERALL binary eval, not per-class tuning)
 def balance(d):
     normal = d[d['label_binary']==0]
     attack = d[d['label_binary']==1]
@@ -146,26 +164,52 @@ val_bal = balance(val_df)
 eval_bal = balance(eval_df)
 print(f"Threshold-val balanced: {len(val_bal):,}  |  Final-eval balanced: {len(eval_bal):,}")
 
-# ── Tune thresholds on val_bal (vehicle-disjoint from eval_bal now) ──
-val_bin_proba = lgb_binary.predict_proba(val_bal[feature_cols])[:, 1]
-val_mc_pred = lgb_multiclass.predict(val_bal[feature_cols])
+# ── FIXED per-class threshold tuning ──────────────────────────────────────────────
+# Precompute binary probabilities once for the full val_df (not just val_bal), so we
+# have plenty of real Normal rows on hand to pair with each attack class.
+print("\nScoring validation half...")
+val_df['bin_proba'] = lgb_binary.predict_proba(val_df[feature_cols])[:, 1]
+
+normal_val_pool = val_df[val_df['class'] == 0]
+print(f"Real Normal rows available in validation half: {len(normal_val_pool):,}")
 
 optimal_thresholds = {0: 0.5}
-for cls in HARD_CLASSES:
-    cls_mask = (val_bal['class'] == cls)
-    if cls_mask.sum() > 10:
-        cls_proba = val_bin_proba[cls_mask.values]
-        best_f1, best_thresh = 0, 0.5
-        for thresh in np.arange(0.1, 0.9, 0.05):
-            preds = (cls_proba > thresh).astype(int)
-            if preds.sum() > 0:
-                f1 = f1_score(np.ones_like(preds), preds)
-                if f1 > best_f1:
-                    best_f1, best_thresh = f1, thresh
-        optimal_thresholds[cls] = best_thresh
-        print(f"  Class {cls} ({ATTACK_NAMES[cls]}): threshold={best_thresh:.2f}, val F1={best_f1:.3f}")
+print("\nPer-class threshold search (now scored against REAL Normal rows, not an all-positive slice):")
+for cls in sorted(HARD_CLASSES):
+    cls_pool = val_df[val_df['class'] == cls]
+    if len(cls_pool) <= 10:
+        print(f"  Class {cls} ({ATTACK_NAMES[cls]}): only {len(cls_pool)} rows in val, skipping — using default 0.5")
+        continue
 
-# ── Apply to eval_bal (genuinely unseen vehicles for this threshold step) ──
+    # Build a REAL binary eval slice: this class's attacks (label=1) + a matched
+    # sample of genuine Normal traffic (label=0). This is what makes precision
+    # actually computable — the old code never gave the metric a single Normal
+    # row to be wrong about.
+    n = min(len(cls_pool), len(normal_val_pool))
+    pos = cls_pool.sample(n=n, random_state=RANDOM_STATE) if len(cls_pool) > n else cls_pool
+    neg = normal_val_pool.sample(n=n, random_state=RANDOM_STATE)
+    slice_df = pd.concat([pos, neg])
+    y_true = (slice_df['class'] == cls).astype(int).values
+    proba = slice_df['bin_proba'].values
+
+    best_f1, best_thresh = 0.0, 0.5
+    for thresh in THRESHOLD_GRID:
+        preds = (proba > thresh).astype(int)
+        f1 = f1_score(y_true, preds, zero_division=0)
+        if f1 > best_f1:
+            best_f1, best_thresh = f1, thresh
+
+    optimal_thresholds[cls] = best_thresh
+    final_preds = (proba > best_thresh).astype(int)
+    p = precision_score(y_true, final_preds, zero_division=0)
+    r = recall_score(y_true, final_preds, zero_division=0)
+    print(f"  Class {cls} ({ATTACK_NAMES[cls]}): threshold={best_thresh:.2f}  "
+          f"F1={best_f1:.3f}  precision={p:.3f}  recall={r:.3f}  (n_pos={n}, n_neg={n})")
+
+print("\nFinal corrected thresholds:", optimal_thresholds)
+joblib.dump(optimal_thresholds, 'optimal_thresholds_v2.pkl')
+
+# ── Apply to eval_bal (genuinely unseen vehicles for this threshold step) — unchanged ──
 eval_bin_proba = lgb_binary.predict_proba(eval_bal[feature_cols])[:, 1]
 eval_mc_pred = lgb_multiclass.predict(eval_bal[feature_cols])
 final_pred = np.zeros(len(eval_bal), dtype=int)
@@ -174,7 +218,7 @@ for i, (mc_p, proba) in enumerate(zip(eval_mc_pred, eval_bin_proba)):
     final_pred[i] = 1 if proba > thresh else 0
 
 print("\n" + "="*70)
-print("HONEST FINAL RESULT — vehicle-disjoint threshold tuning + eval")
+print("HONEST FINAL RESULT — vehicle-disjoint threshold tuning (bug fixed) + eval")
 print("="*70)
 print(classification_report(eval_bal['label_binary'], final_pred, target_names=['Normal','Attack'], digits=4))
 print("Accuracy:", accuracy_score(eval_bal['label_binary'], final_pred))
@@ -193,3 +237,22 @@ for c in sorted(eval_df_full['class'].unique()):
     pred = (sub['bin_proba'] > thresh_map).astype(int)
     correct = (pred == target).mean()
     print(f"  class {c:2d} ({ATTACK_NAMES.get(c,'?'):26s}) n={len(sub):5d}  correctly-classified={correct*100:5.1f}%")
+
+# ── Also report per-class PRECISION on this final eval set, since that's exactly
+#    the number the old threshold silently broke ──
+print("\nPer-class precision on final eval set (share of predicted-attack that's genuinely that class or any attack):")
+for c in sorted(HARD_CLASSES):
+    thresh = optimal_thresholds.get(c, 0.5)
+    sub_attack = eval_df_full[eval_df_full['class'] == c]
+    sub_normal = eval_df_full[eval_df_full['class'] == 0]
+    n = min(len(sub_attack), len(sub_normal))
+    if n == 0:
+        continue
+    pos = sub_attack.sample(n=n, random_state=RANDOM_STATE) if len(sub_attack) > n else sub_attack
+    neg = sub_normal.sample(n=n, random_state=RANDOM_STATE)
+    y_true = np.concatenate([np.ones(len(pos)), np.zeros(len(neg))])
+    proba = pd.concat([pos, neg])['bin_proba'].values
+    preds = (proba > thresh).astype(int)
+    p = precision_score(y_true, preds, zero_division=0)
+    r = recall_score(y_true, preds, zero_division=0)
+    print(f"  class {c:2d} ({ATTACK_NAMES[c]:26s}) threshold={thresh:.2f}  precision={p:.3f}  recall={r:.3f}")
