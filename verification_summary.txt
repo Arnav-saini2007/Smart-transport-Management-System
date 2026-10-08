@@ -1,0 +1,171 @@
+================================================================================
+PIPELINE VERIFICATION — enhanced model + corrected per-class thresholds
+================================================================================
+
+Loading D:\VIT\Hackathon\Gdg 2026\VeReMi_Extension Dataset for Misbehaviors in VANETs\mixalldata_clean.csv ...
+Loaded 3,194,808 rows
+Computing trailing message-rate feature...
+Computing direction-change features...
+Computing rolling sequence features (slow step)...
+Feature engineering done in 2177.1s
+
+Loaded CORRECTED thresholds (optimal_thresholds_v2.pkl): {0: 0.5, 2: np.float64(0.05), 4: np.float64(0.49), 10: np.float64(0.56), 11: np.float64(0.49), 17: np.float64(0.49)}
+Loaded OLD thresholds for comparison (optimal_thresholds.pkl): {0: 0.5, 17: np.float64(0.1), 2: np.float64(0.1), 4: np.float64(0.1), 10: np.float64(0.1), 11: np.float64(0.1)}
+
+Val vehicles: 2,466  Eval vehicles: 2,467  overlap: 0
+This script evaluates ONLY on eval_df — vehicles never touched by threshold tuning.
+
+================================================================================
+REPORT — CORRECTED thresholds (optimal_thresholds_v2.pkl)
+================================================================================
+
+[Natural class proportions, n=324,122]
+              precision    recall  f1-score   support
+
+      Normal     0.9852    0.9991    0.9921    192304
+      Attack     0.9986    0.9781    0.9882    131818
+
+    accuracy                         0.9905    324122
+   macro avg     0.9919    0.9886    0.9901    324122
+weighted avg     0.9906    0.9905    0.9905    324122
+
+Accuracy: 0.9905
+Confusion matrix:
+                 Pred Normal   Pred Attack
+  Actual Normal      192123          181
+  Actual Attack        2891       128927
+
+[Balanced 50/50 Normal:Attack, n=263,636]
+              precision    recall  f1-score   support
+
+      Normal     0.9785    0.9991    0.9887    131818
+      Attack     0.9990    0.9781    0.9884    131818
+
+    accuracy                         0.9886    263636
+   macro avg     0.9888    0.9886    0.9886    263636
+weighted avg     0.9888    0.9886    0.9886    263636
+
+Accuracy: 0.9886
+
+Per-class detection rate (all 20 classes):
+  class  0 (Normal                    ) n=192304  correctly-classified= 99.9%
+  class  1 (Const Position            ) n=  5052  correctly-classified= 97.6%
+  class  2 (Const Pos Offset          ) n=  5679  correctly-classified= 85.9%
+  class  3 (Random Position           ) n=  4248  correctly-classified= 99.9%
+  class  4 (Random Pos Offset         ) n=  3452  correctly-classified= 99.4%
+  class  5 (Const Speed               ) n=  4289  correctly-classified=100.0%
+  class  6 (Const Speed Offset        ) n=  4748  correctly-classified= 99.2%
+  class  7 (Random Speed              ) n=  3172  correctly-classified=100.0%
+  class  8 (Random Speed Offset       ) n=  3897  correctly-classified=100.0%
+  class  9 (Disruptive                ) n=  3525  correctly-classified= 79.8%
+  class 10 (Data Replay               ) n=  4062  correctly-classified= 98.1%
+  class 11 (DoS                       ) n=  3473  correctly-classified= 98.1%
+  class 12 (DoS Random                ) n=  4609  correctly-classified= 81.1%
+  class 13 (DoS Disruptive            ) n= 13072  correctly-classified= 99.7%
+  class 14 (Data Replay Sybil         ) n= 14042  correctly-classified=100.0%
+  class 15 (Traffic Congestion Sybil  ) n= 13604  correctly-classified= 99.9%
+  class 16 (DoS Random Sybil          ) n= 20474  correctly-classified= 99.8%
+  class 17 (DoS Disruptive Sybil      ) n=  4126  correctly-classified= 98.1%
+  class 18 (Class18                   ) n=  6753  correctly-classified=100.0%
+  class 19 (Class19                   ) n=  9541  correctly-classified= 99.9%
+
+Per-class REAL precision/recall/F1 (hard classes only, matched against actual Normal rows):
+  class  2 (Const Pos Offset          ) threshold=0.05  precision=0.943  recall=0.948  F1=0.946
+  class  4 (Random Pos Offset         ) threshold=0.49  precision=0.999  recall=0.995  F1=0.997
+  class 10 (Data Replay               ) threshold=0.56  precision=0.999  recall=0.981  F1=0.990
+  class 11 (DoS                       ) threshold=0.49  precision=0.999  recall=0.981  F1=0.990
+  class 17 (DoS Disruptive Sybil      ) threshold=0.49  precision=0.999  recall=0.981  F1=0.990
+
+================================================================================
+REPORT — OLD thresholds (optimal_thresholds.pkl) — for comparison
+================================================================================
+
+[Natural class proportions, n=324,122]
+              precision    recall  f1-score   support
+
+      Normal     0.9851    0.9988    0.9919    192304
+      Attack     0.9982    0.9779    0.9879    131818
+
+    accuracy                         0.9903    324122
+   macro avg     0.9916    0.9883    0.9899    324122
+weighted avg     0.9904    0.9903    0.9903    324122
+
+Accuracy: 0.9903
+Confusion matrix:
+                 Pred Normal   Pred Attack
+  Actual Normal      192072          232
+  Actual Attack        2915       128903
+
+[Balanced 50/50 Normal:Attack, n=263,636]
+              precision    recall  f1-score   support
+
+      Normal     0.9783    0.9988    0.9885    131818
+      Attack     0.9988    0.9779    0.9882    131818
+
+    accuracy                         0.9884    263636
+   macro avg     0.9886    0.9884    0.9884    263636
+weighted avg     0.9886    0.9884    0.9884    263636
+
+Accuracy: 0.9884
+
+Per-class detection rate (all 20 classes):
+  class  0 (Normal                    ) n=192304  correctly-classified= 99.9%
+  class  1 (Const Position            ) n=  5052  correctly-classified= 97.6%
+  class  2 (Const Pos Offset          ) n=  5679  correctly-classified= 85.4%
+  class  3 (Random Position           ) n=  4248  correctly-classified= 99.9%
+  class  4 (Random Pos Offset         ) n=  3452  correctly-classified= 99.4%
+  class  5 (Const Speed               ) n=  4289  correctly-classified=100.0%
+  class  6 (Const Speed Offset        ) n=  4748  correctly-classified= 99.2%
+  class  7 (Random Speed              ) n=  3172  correctly-classified=100.0%
+  class  8 (Random Speed Offset       ) n=  3897  correctly-classified=100.0%
+  class  9 (Disruptive                ) n=  3525  correctly-classified= 79.8%
+  class 10 (Data Replay               ) n=  4062  correctly-classified= 98.1%
+  class 11 (DoS                       ) n=  3473  correctly-classified= 98.2%
+  class 12 (DoS Random                ) n=  4609  correctly-classified= 81.1%
+  class 13 (DoS Disruptive            ) n= 13072  correctly-classified= 99.7%
+  class 14 (Data Replay Sybil         ) n= 14042  correctly-classified=100.0%
+  class 15 (Traffic Congestion Sybil  ) n= 13604  correctly-classified= 99.9%
+  class 16 (DoS Random Sybil          ) n= 20474  correctly-classified= 99.8%
+  class 17 (DoS Disruptive Sybil      ) n=  4126  correctly-classified= 98.1%
+  class 18 (Class18                   ) n=  6753  correctly-classified=100.0%
+  class 19 (Class19                   ) n=  9541  correctly-classified= 99.9%
+
+Per-class REAL precision/recall/F1 (hard classes only, matched against actual Normal rows):
+  class  2 (Const Pos Offset          ) threshold=0.10  precision=0.975  recall=0.911  F1=0.942
+  class  4 (Random Pos Offset         ) threshold=0.10  precision=0.979  recall=1.000  F1=0.989
+  class 10 (Data Replay               ) threshold=0.10  precision=0.977  recall=0.983  F1=0.980
+  class 11 (DoS                       ) threshold=0.10  precision=0.978  recall=0.990  F1=0.984
+  class 17 (DoS Disruptive Sybil      ) threshold=0.10  precision=0.977  recall=0.987  F1=0.982
+
+================================================================================
+MULTICLASS CLASSIFIER — standalone performance (20-way, not threshold-dependent)
+================================================================================
+                          precision    recall  f1-score   support
+
+                  Normal     0.9847    0.9992    0.9919    192304
+          Const Position     0.9965    0.9689    0.9825      5052
+        Const Pos Offset     0.9890    0.8542    0.9167      5679
+         Random Position     0.9965    0.9934    0.9949      4248
+       Random Pos Offset     0.9959    0.9913    0.9936      3452
+             Const Speed     0.9935    0.9942    0.9938      4289
+      Const Speed Offset     0.9960    0.9945    0.9953      4748
+            Random Speed     0.9918    0.9943    0.9931      3172
+     Random Speed Offset     0.9967    0.9962    0.9964      3897
+              Disruptive     0.9986    0.7983    0.8873      3525
+             Data Replay     0.8653    0.8269    0.8457      4062
+                     DoS     0.4111    0.4881    0.4463      3473
+              DoS Random     0.9804    0.8013    0.8818      4609
+          DoS Disruptive     0.9883    0.9952    0.9917     13072
+       Data Replay Sybil     0.9275    0.7743    0.8440     14042
+Traffic Congestion Sybil     0.9021    0.7816    0.8375     13604
+        DoS Random Sybil     0.9972    0.9910    0.9941     20474
+    DoS Disruptive Sybil     0.4892    0.4118    0.4472      4126
+                 Class18     0.6471    0.8851    0.7476      6753
+                 Class19     0.7440    0.8644    0.7997      9541
+
+                accuracy                         0.9498    324122
+               macro avg     0.8946    0.8702    0.8791    324122
+            weighted avg     0.9528    0.9498    0.9498    324122
+
+
+Total script time: 2497.0s

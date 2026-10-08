@@ -8,7 +8,7 @@ alerts_log.jsonl
 
 # Ignore large datasets (if demo_multimessage.csv is large)
 demo_multimessage.csv
-data.csv
+vehicle_driving_profiles.csv
 
 model_multiclass_enhanced.pkl
 model_binary_enhanced.pkl
@@ -20,6 +20,8 @@ optimal_thresholds.pkl
 feature_cols_v3_full.pkl
 feature_cols_v2_full.pkl
 feature_cols_v2.pkl
+rash_driving_model.pkl
+optimal_thresholds_v2.pkl
 
 
 # Ignore environment/secret files

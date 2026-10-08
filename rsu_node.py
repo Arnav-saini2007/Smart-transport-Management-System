@@ -8,6 +8,20 @@ warnings.filterwarnings("ignore")
 
 from driving.kinematic_features import update_kinematics, get_rolling_features, compute_ttc
 from driving.crash_rules import evaluate as evaluate_driving
+from driving.rash_driving import score_driving_style
+
+# rash_driving_model.pkl is produced by train_driving_model.py — if it hasn't
+# been run yet, don't crash the whole RSU node over it; just skip rash-driving
+# scoring and keep doing instant-event crash detection + security classification.
+try:
+    score_driving_style  # (lazy-loads the model on first real call, not here)
+    import joblib as _joblib
+    _joblib.load('rash_driving_model.pkl')  # fail fast with a clear message if missing
+    RASH_DRIVING_ENABLED = True
+except FileNotFoundError:
+    RASH_DRIVING_ENABLED = False
+    print("⚠️  rash_driving_model.pkl not found — rash-driving-style scoring disabled. "
+          "Run train_driving_model.py to enable it.")
 
 LOG_FILE = "alerts_log.jsonl"
 if os.path.exists(LOG_FILE):
@@ -56,21 +70,31 @@ for idx, row in df.iterrows():
         payload['sender'] = int(row.get('type', row.get('vehicle_id', idx)))
 
     # ── Driving / crash-physics layer ──
-    # Runs locally (no HTTP round-trip needed — this is cheap enough to run
-    # inline, which also matters for phase 3 since the OBU won't always
-    # have spare network bandwidth). Uses the _n (noisy/received) fields,
-    # since that's what a real receiver actually observes. If your security
-    # model instead trains on ground-truth fields, drop the "_n" suffix
-    # below and set USE_NOISY_FIELDS = False in kinematic_features.py.
+    # Runs locally (no HTTP round-trip needed). Uses the GROUND-TRUTH
+    # (non-"_n") position/speed/accel/heading fields.
+    #
+    # CHANGED: this used to read the "_n"-suffixed fields on the assumption
+    # that they were noisy/received readings ("what a real receiver
+    # observes"). They are not — in this dataset they're a much
+    # smaller-magnitude noise VECTOR, not a usable position/speed/accel
+    # signal (confirmed against the original VeReMi paper's description of
+    # a separate "position noise vector" field, and empirically: posx_n
+    # ranges ~0-5 while posx ranges ~0-1500, correlation ~0.05). Feeding
+    # "_n" fields into update_kinematics() produced near-zero speed/accel
+    # for every vehicle and made every crash_rules threshold unreachable.
+    # Ground-truth fields give real, physically meaningful kinematics.
+    # If you later get access to a genuine noisy-position column (e.g. a
+    # real GPS-error-augmented field, not this dataset's noise vector),
+    # point this back at that column instead.
     kin_msg = {
         "sender": payload['sender'],
         "timestamp": payload['sendTime'],
-        "posx": payload['posx_n'], "posy": payload['posy_n'],
-        "spdx": payload['spdx_n'], "spdy": payload['spdy_n'],
-        "aclx": payload['aclx_n'], "acly": payload['acly_n'],
-        "hedx": payload['hedx_n'], "hedy": payload['hedy_n'],
+        "posx": payload['posx'], "posy": payload['posy'],
+        "spdx": payload['spdx'], "spdy": payload['spdy'],
+        "aclx": payload['aclx'], "acly": payload['acly'],
+        "hedx": payload['hedx'], "hedy": payload['hedy'],
     }
-    update_kinematics(kin_msg)
+    reading = update_kinematics(kin_msg)
     driving_event = evaluate_driving(
         payload['sender'],
         get_rolling_features(payload['sender']),
@@ -81,6 +105,18 @@ for idx, row in df.iterrows():
               f"| {driving_event.reason}")
         with open(LOG_FILE, 'a') as f:
             f.write(json.dumps(driving_event.to_alert_dict()) + '\n')
+
+    # ── Rash-driving-style layer (sustained pattern, not an instant event) ──
+    # Independent of the instant-event check above — a vehicle can trip both,
+    # neither, or just one, so this is logged separately rather than folded
+    # into evaluate_driving()'s single-highest-severity result.
+    if RASH_DRIVING_ENABLED:
+        style_event = score_driving_style(payload['sender'], reading)
+        if style_event:
+            print(f"🧭 [DRIVING STYLE] {style_event.event_type} on Vehicle {payload['sender']} "
+                  f"| {style_event.reason}")
+            with open(LOG_FILE, 'a') as f:
+                f.write(json.dumps(style_event.to_alert_dict()) + '\n')
 
     try:
         # Send telemetry frame to your running model_service.py API
